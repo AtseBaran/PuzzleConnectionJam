@@ -3,12 +3,8 @@
 [ext_resource type="PackedScene" uid="uid://cm37xjt7bpw5n" path="res://Prefabs/Light.tscn" id="1_kw63b"]
 [ext_resource type="Script" path="res://addons/phantom_camera/scripts/phantom_camera/phantom_camera_2d.gd" id="2_no6oc"]
 [ext_resource type="Script" path="res://addons/phantom_camera/scripts/resources/tween_resource.gd" id="3_7csg2"]
-
-[sub_resource type="Resource" id="Resource_x6tx0"]
-script = ExtResource("3_7csg2")
-duration = 1.0
-transition = 0
-ease = 2
+[ext_resource type="Script" path="res://addons/phantom_camera/scripts/phantom_camera_host/phantom_camera_host.gd" id="4_wvbkm"]
+[ext_resource type="Script" path="res://Scripts/EndLevel.gd" id="5_0u7vc"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ikvuf"]
 size = Vector2(18, 554.375)
@@ -16,32 +12,20 @@ size = Vector2(18, 554.375)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_y0y3d"]
 size = Vector2(38.5, 41.875)
 
-[sub_resource type="Sky" id="Sky_abibw"]
+[sub_resource type="Resource" id="Resource_gij2r"]
+script = ExtResource("3_7csg2")
+duration = 1.0
+transition = 1
+ease = 2
 
-[sub_resource type="Environment" id="Environment_vkk6p"]
-background_mode = 1
-sky = SubResource("Sky_abibw")
-glow_enabled = true
-fog_enabled = true
-fog_light_color = Color(0.024756, 0.0299577, 0.03933, 1)
-volumetric_fog_enabled = true
-volumetric_fog_density = 1.0
-volumetric_fog_albedo = Color(0.0235294, 0.0313726, 0.0392157, 1)
-
-[sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_0jp63"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wwdj3"]
+size = Vector2(88, 80)
 
 [node name="Main" type="Node2D"]
 
 [node name="Light" parent="." instance=ExtResource("1_kw63b")]
-position = Vector2(347, 325)
-
-[node name="PhantomCamera2D" type="Node2D" parent="." node_paths=PackedStringArray("follow_target")]
-position = Vector2(347, 325)
-script = ExtResource("2_no6oc")
-priority = 1
-follow_mode = 2
-follow_target = NodePath("../Light")
-tween_resource = SubResource("Resource_x6tx0")
+position = Vector2(305, 318)
+speed = Vector2(750, 750)
 
 [node name="StaticBody2D" type="StaticBody2D" parent="."]
 position = Vector2(1125, 342)
@@ -84,6 +68,31 @@ rotation = 0.785398
 scale = Vector2(2, 2)
 shape = SubResource("RectangleShape2D_y0y3d")
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-environment = SubResource("Environment_vkk6p")
-camera_attributes = SubResource("CameraAttributesPractical_0jp63")
+[node name="PhantomCamera2D" type="Node2D" parent="." node_paths=PackedStringArray("follow_target")]
+position = Vector2(305, 318)
+script = ExtResource("2_no6oc")
+follow_mode = 5
+follow_target = NodePath("../Light")
+zoom = Vector2(0.5, 0.5)
+tween_resource = SubResource("Resource_gij2r")
+follow_damping = true
+dead_zone_width = 0.25
+dead_zone_height = 0.25
+draw_limits = true
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(305, 318)
+zoom = Vector2(0.5, 0.5)
+position_smoothing_speed = 100.0
+
+[node name="PhantomCameraHost" type="Node" parent="Camera2D"]
+script = ExtResource("4_wvbkm")
+
+[node name="EndLevel" type="Area2D" parent="."]
+position = Vector2(90, 559)
+script = ExtResource("5_0u7vc")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="EndLevel"]
+shape = SubResource("RectangleShape2D_wwdj3")
+
+[connection signal="body_entered" from="EndLevel" to="EndLevel" method="_on_body_entered"]
